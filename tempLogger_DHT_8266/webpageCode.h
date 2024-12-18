@@ -1,0 +1,455 @@
+const char webpage[] PROGMEM = R"=====(
+    
+<!DOCTYPE html>
+<html>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    html {
+        height: 100%;
+    }
+
+    body {
+        background-image: linear-gradient(0deg, #90BBD7 5%, #89B5D1 40%, #4884AD 95%);
+    }
+
+    .wrapper {
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        width: 60%;
+        display: flex;
+        flex-wrap: wrap;
+        margin: auto;
+        padding-top: 15vh;
+    }
+
+    .title {
+        font-size: 1.5em;
+    }
+
+    .temperature {
+        font-size: 5.5em;
+    }
+
+    .waterStatus {
+        font-size: 2.1em;
+        padding-top: 4%;
+    }
+
+    .infobox {
+        width: 40%;
+    }
+
+    #rightInfobox {
+        margin-left: auto;
+    }
+
+    #rightGraph {
+        margin-left: auto;
+    }
+
+    .graphBox {
+        width: 60%;
+        display: flex;
+        flex-wrap: wrap;
+        margin: auto;
+        padding-top: 5vh;
+    }
+
+    .graphWrapperTop {
+        width: 40%;
+        height: 105px;
+        background: #A1C2D9;
+        box-shadow: 0 0 19px -10px rgba(0,0,0,0.50);
+        border-radius: 22px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .graphWrapperBottom {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        bottom: 0px;
+    }
+
+    .graphLabelWrapper {
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        width: 60%;
+        display: flex;
+        flex-wrap: wrap;
+        margin: auto;
+    }
+
+    .subgraphLabelWrapper {
+        width: 40%;
+        position: relative;
+    }
+
+    .graphLabel {
+        overflow: hidden;
+        position: absolute;
+        padding-top: 2%;
+    }
+
+    #rightLabel {
+        right: 0px;
+        padding-right: 2%;
+    }
+
+    #leftLabel {
+        padding-left: 1%;
+    }
+
+    #rightLabelWrapper {
+        margin-left: auto;
+    }
+
+    #graphBox2 {
+        padding-top: 15px;
+    }
+</style>
+
+<head>
+	<title>Monitor</title>
+	<link
+		rel="icon"
+		href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌤</text></svg>"/>
+	<meta charset="UTF-8">
+</head>
+<body>
+	<div class="wrapper">
+		<div class="infobox">
+			<div class="title">
+				Dining room &nbsp &#128715;
+			</div>
+			<div id="T1" class="temperature">
+				%T1%&#8451;
+			</div>
+			<div id="H1" class="temperature">
+				%H1%&#37;
+			</div>
+		</div>
+		<div id="rightInfobox" class="infobox">
+			<div class="title">
+				Greenbeans &nbsp &#129716;
+			</div>
+			<div id="H2" class="temperature">
+				%H2%&#37;
+			</div>
+			<div class="waterStatus">
+				Needs water.
+			</div>
+		</div>
+	</div>
+	<div>
+		<div class="graphBox">
+			<div id="leftGraph" class="graphWrapperTop">
+				<div class="graphWrapperBottom">
+					<canvas id="leftChart"></canvas>
+				</div>
+			</div>
+			<div id="rightGraph" class="graphWrapperTop">
+				<div class="graphWrapperBottom">
+					<canvas id="rightChart"></canvas>
+				</div>
+			</div>
+		</div>
+		<div class="graphLabelWrapper">
+			<div class="subgraphLabelWrapper">
+				<div id="leftLabel" class="graphLabel">
+					Now
+				</div>
+				<div id="rightLabel" class="graphLabel">
+					24hrs ago
+				</div>
+			</div>
+			<div id="rightLabelWrapper" class="subgraphLabelWrapper">
+				<div id="leftLabel" class="graphLabel">
+					Now
+				</div>
+				<div id="rightLabel" class="graphLabel">
+					24hrs ago
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="graphBox2">
+		<div class="graphBox">
+			<div id="leftGraph" class="graphWrapperTop">
+				<div class="graphWrapperBottom">
+					<canvas id="bottomLeftChart"></canvas>
+				</div>
+			</div>
+			<div id="rightGraph" class="graphWrapperTop">
+				<div class="graphWrapperBottom">
+					<canvas id="bottomRightChart"></canvas>
+				</div>
+			</div>
+		</div>
+		<div class="graphLabelWrapper">
+			<div class="subgraphLabelWrapper">
+				<div id="leftLabel" class="graphLabel">
+					Now
+				</div>
+				<div id="rightLabel" class="graphLabel">
+					24hrs ago
+				</div>
+			</div>
+			<div id="rightLabelWrapper" class="subgraphLabelWrapper">
+				<div id="leftLabel" class="graphLabel">
+					Now
+				</div>
+				<div id="rightLabel" class="graphLabel">
+					24hrs ago
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+
+<script>
+    //updating values
+    function getT1() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.status == 200) {
+                document.getElementById("T1").innerHTML = this.responseText; //replace the text/"update value"
+            }
+        };
+        xhttp.open("GET", "/T1", true); //creating/describing the request
+        xhttp.send(); //actually sends the request to the C code
+    }
+
+    function getH1() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.status == 200) {
+                document.getElementById("H1").innerHTML = this.responseText;
+            }
+        };
+        xhttp.open("GET", "/H1", true);
+        xhttp.send();
+    }
+
+    function getHistory(chart, sensor){
+        var xhttp = new XMLHttpRequest();
+        let counter = 0; //for some reason the onreadystatechange will return 3 200 responses. one empty array and two of the same full data arrays.
+        xhttp.onreadystatechange = function() {
+            if (this.status == 200 && counter == 0) {
+                let clean_output = this.responseText.split(",").map(Number);
+                if (clean_output.length == 24 && counter == 0){
+                    //swap in updated data
+                    chart.data.datasets[0].data = clean_output;                
+                    console.log(clean_output);
+                    console.log("updated data");
+                    chart.update();
+                    counter++;
+                    //local time labels instead of "1hr ago"
+                    let today = new Date();
+                    for (let x = 0; x < 24; x++){
+                        let hour = today.getHours() - (1+x);
+                        if (hour <= 0){
+                            hour = hour + 24;
+                        }
+                        let suffix = hour >= 12 ? 'pm' : 'am';
+                        hour = (hour % 12) || 12;
+                        chart.data.labels[x] = hour + suffix;
+                    }
+                }
+            }
+        };
+        xhttp.open("GET", "/history_"+sensor, true);
+        xhttp.send();
+    }
+
+    //set graphs
+    const chartLocation1 = document.getElementById('leftChart').getContext("2d");
+    const chartLocation2 = document.getElementById('rightChart').getContext("2d");
+    const chartLocation3 = document.getElementById('bottomLeftChart').getContext("2d");
+
+    var gradient = chartLocation1.createLinearGradient(0, 0, 0, 170);
+            gradient.addColorStop(0, 'rgba(222, 239, 255, 1)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+
+    //left chart -- Temperature
+    const myChart1 = new Chart(chartLocation1, {
+    type: 'line',
+    data: {
+        labels: ["1hr ago", "2hrs ago", "3hrs ago", "4hrs ago", "5hrs ago", "6hrs ago", "7hrs ago", "8hrs ago", "9hrs ago", "10hrs ago", "11hrs ago", "12hrs ago", "13hrs ago", "14hrs ago", "15hrs ago", "16hrs ago", "17hrs ago", "18hrs ago", "19hrs ago", "20hrs ago", "21hrs ago", "22hrs ago", "23hrs ago", "24hrs ago"],
+        datasets: [{
+            label: "Temperature (\°C)",
+            data: [10, 10, 10, 15, 15, 15, 10, 10, 10, 15, 15, 15, 20, 20, 20, 25, 25, 25, 30, 30, 30, 15, 15, 15],
+            fill: true,
+            pointStyle: 'circle',
+            backgroundColor: gradient,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            lineTension: 0.2,
+            borderColor: "#FF000000",
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                display: false,
+                min: 0,
+                max: 50,
+            },
+
+            x: {
+                display: false,
+                min: 0,
+                max: 24,
+            }
+        },
+        plugins: {
+            title: {
+                display: false,
+            },
+            
+            legend: {
+                display: false,
+            }
+        },
+        tooltips: {
+            mode: 'index',
+            intersect: false,
+            position: 'nearest',
+        },
+        hover: {
+            mode: 'index',
+            intersect: false
+        }
+    }
+    })
+
+    //right chart -- placeholder
+    const myChart2 = new Chart(chartLocation2, {
+    type: 'line',
+    data: {
+        labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
+        datasets: [{
+            label: "Temperature",
+            data: [23, 24, 25, 24, 24, 23, 22, 22, 22, 22, 21, 21, 20, 20, 19, 19, 19, 18, 17, 16, 17, 22, 23, 24],
+            fill: true,
+            pointStyle: 'circle',
+            backgroundColor: gradient,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            lineTension: 0.2,
+            borderColor: "#FF000000",
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                display: false,
+                min: 0,
+                max: 35,
+            },
+
+            x: {
+                display: false,
+                min: 0,
+                max: 24,
+            }
+        },
+        plugins: {
+            title: {
+                display: false,
+            },
+            legend: {
+                display: false,
+            }
+        },
+        tooltips: {
+            mode: 'index',
+            intersect: false,
+            position: 'nearest',
+        },
+        hover: {
+            mode: 'index',
+            intersect: false
+        }
+    }
+    });
+
+    //bottom left chart -- Humidity
+    const myChart3 = new Chart(chartLocation3, {
+    type: 'line',
+    data: {
+        labels: ["1hr ago", "2hrs ago", "3hrs ago", "4hrs ago", "5hrs ago", "6hrs ago", "7hrs ago", "8hrs ago", "9hrs ago", "10hrs ago", "11hrs ago", "12hrs ago", "13hrs ago", "14hrs ago", "15hrs ago", "16hrs ago", "17hrs ago", "18hrs ago", "19hrs ago", "20hrs ago", "21hrs ago", "22hrs ago", "23hrs ago", "24hrs ago"],
+        datasets: [{
+            label: "Humidity (%)",
+            data: [10, 10, 10, 15, 15, 15, 10, 10, 10, 15, 15, 15, 20, 20, 20, 25, 25, 25, 30, 30, 30, 15, 15, 15],
+            fill: true,
+            pointStyle: 'circle',
+            backgroundColor: gradient,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            lineTension: 0.2,
+            borderColor: "#FF000000",
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                display: false,
+                min: 0,
+                max: 100,
+            },
+            x: {
+                display: false,
+                min: 0,
+                max: 24,
+            }
+        },
+        plugins: {
+            title: {
+                display: false,
+            },
+            
+            legend: {
+                display: false,
+            }
+        },
+        tooltips: {
+            mode: 'index',
+            intersect: false,
+            position: 'nearest',
+        },
+        hover: {
+            mode: 'index',
+            intersect: false
+        }
+    }
+    })
+
+    //first time run
+    getT1();
+    getH1();
+    getHistory(myChart1, "T1");
+    getHistory(myChart3, "H1");
+
+    //run automatically
+    setInterval(getT1, 60000); //time in ms, 10000ms = 10s
+    setInterval(getH1, 60000); // 60000 = 1 min
+    setInterval(getHistory, 1800000, myChart1, "T1"); //30 mins
+    setInterval(getHistory, 1800000, myChart3, "H1"); //30 mins
+    //setInterval(getHistory, 10000, myChart1, "T1"); //10 sec
+    //setInterval(getHistory, 10000, myChart3, "H1"); //10 sec
+
+</script>  
+</html>
+
+)=====";

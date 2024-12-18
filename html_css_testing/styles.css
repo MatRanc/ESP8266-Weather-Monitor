@@ -1,0 +1,100 @@
+html {
+  height: 100%;
+}
+
+body {
+  background-image: linear-gradient(0deg, #90BBD7 5%, #89B5D1 40%, #4884AD 95%);
+}
+
+.wrapper {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  width: 60%;
+  display: flex;
+  flex-wrap: wrap;
+  margin: auto;
+  padding-top: 15vh;
+  }
+
+.title {
+  font-size: 1.5em;
+}
+
+.temperature {
+  font-size: 5.5em;
+}
+
+.waterStatus {
+  font-size: 2.1em;
+  padding-top: 4%;
+}
+
+.infobox {
+  width: 40%;
+}
+
+#rightInfobox {
+  margin-left: auto;
+}
+
+#rightGraph {
+  margin-left: auto;
+}
+
+.graphBox {
+  width: 60%;
+  display: flex;
+  flex-wrap: wrap;
+  margin: auto;
+  padding-top: 5vh;
+}
+
+.graphWrapper {
+  width: 40%;
+  height: 150px;
+  background: #A1C2D9;
+  box-shadow: 0 0 19px -10px rgba(0,0,0,0.50);
+  border-radius: 22px;
+  overflow: hidden;
+  position: relative;
+}
+
+.graphWrapper2 {
+  height: 70%;
+  width: 100%;
+  position: absolute;
+  bottom: 0px;
+}
+
+.graphLabelWrapper {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  width: 60%;
+  display: flex;
+  flex-wrap: wrap;
+  margin: auto;
+}
+
+.subgraphLabelWrapper {
+  width: 40%;
+  position: relative;
+}
+
+.graphLabel {
+  overflow: hidden;
+  position: absolute;
+  padding-top: 2%;
+}
+
+#rightLabel {
+  right: 0px;
+  padding-right: 2%;
+}
+
+#leftLabel {
+  padding-left: 1%;
+}
+
+#rightLabelWrapper {
+  margin-left: auto;
+}
